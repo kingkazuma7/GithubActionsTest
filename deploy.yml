@@ -13,14 +13,14 @@ jobs:
         - name: ssh key generate
           run: echo "$SSH_PRIVATE_KEY" > key && chmod 600 key
           env:
-            SSH_PRIVATE_KEY: ${{ secrets.MIXHOST_SECRET_KEY }}
+            SSH_PRIVATE_KEY: ${{ secrets.MIXHOST_SECRET_KEY }} #githubに登録したmixhostへの秘密鍵を指定
         - name: rsync deployments
           uses: burnett01/rsync-deployments@5.1
           with:
             switches: -avz --delete
-            path: src/
-            remote_path: /public_html/nasio7_dev/GitHubActions/
-            remote_host: ${{ secrets.MIXHOST_HOST }}
-            remote_user: ${{ secrets.MIXHOST_USER }}
+            path: src/ #mixhostに送りたいファイルのあるパスを指定
+            remote_path: /home/pmlyknzb//public_html/nasio7_dev/GitHubActions #mixhostのどこに同期させるか
+            remote_host: nasio7.mixh.jp 
+            remote_user: pmlyknzb
             remote_port: 22
             remote_key: ${{ secrets.MIXHOST_SECRET_KEY }}
