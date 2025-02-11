@@ -19,7 +19,7 @@ jobs:
           with:
             switches: -avz --delete
             path: src/ #mixhostに送りたいファイルのあるパスを指定
-            remote_path: /home/pmlyknzb//public_html/nasio7_dev/GitHubActions/src #mixhostのどこに同期させるか
+            remote_path: /public_html/nasio7_dev/GitHubActions/src/ #mixhostのどこに同期させるか
             remote_host: nasio7.mixh.jp 
             remote_user: pmlyknzb
             remote_port: 22
