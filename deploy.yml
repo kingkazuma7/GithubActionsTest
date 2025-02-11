@@ -1,0 +1,26 @@
+name: deploy to mixhost
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v2
+        - name: ssh key generate
+          run: echo "$SSH_PRIVATE_KEY" > key && chmod 600 key
+          env:
+            SSH_PRIVATE_KEY: ${{ secrets.MIXHOST_SECRET_KEY }}
+        - name: rsync deployments
+          uses: burnett01/rsync-deployments@5.1
+          with:
+            switches: -avz --delete
+            path: src/
+            remote_path: /public_html/nasio7_dev/GitHubActions/
+            remote_host: ${{ secrets.MIXHOST_HOST }}
+            remote_user: ${{ secrets.MIXHOST_USER }}
+            remote_port: 22
+            remote_key: ${{ secrets.MIXHOST_SECRET_KEY }}
