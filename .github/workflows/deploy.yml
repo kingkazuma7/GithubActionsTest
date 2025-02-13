@@ -1,26 +1,19 @@
-name: deploy to mixhost
-
 on:
-  push:
-    branches:
-      - main
-
+  push:                 
+    branches:           
+      - master    
+name: Build and Deploy  
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  FTP-Deploy-Action:
+    name: FTP-Deploy-Action     # JOBの名前
+    runs-on: ubuntu-latest      # 仮想環境の種類を指定
     steps:
-        - uses: actions/checkout@v2
-        - name: ssh key generate
-          run: echo "$SSH_PRIVATE_KEY" > key && chmod 600 key
-          env:
-            SSH_PRIVATE_KEY: ${{ secrets.MIXHOST_SECRET_KEY }} #githubに登録したmixhostへの秘密鍵を指定
-        - name: rsync deployments
-          uses: burnett01/rsync-deployments@5.1
-          with:
-            switches: -avz --delete
-            path: src/ #mixhostに送りたいファイルのあるパスを指定
-            remote_path: /public_html/nasio7_dev/GitHubActions/src/ #mixhostのどこに同期させるか
-            remote_host: nasio7.mixh.jp 
-            remote_user: pmlyknzb
-            remote_port: 22
-            remote_key: ${{ secrets.MIXHOST_SECRET_KEY }}
+      - uses: actions/checkout@master                   
+      - name: FTP-Deploy-Action
+        uses: SamKirkland/FTP-Deploy-Action@2.0.0   
+        env:                                        
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}     
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }} 
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }} 
+          LOCAL_DIR: ./src
+          REMOTE_DIR: "public_html/nasio7_dev/GitHubActions/src"
