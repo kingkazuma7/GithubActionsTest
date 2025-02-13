@@ -1,26 +1,36 @@
 name: deploy to mixhost
-
 on:
   push:
     branches:
-      - main
-
+    - main
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v2
-        - name: ssh key generate
-          run: echo "$SSH_PRIVATE_KEY" > key && chmod 600 key
-          env:
-            SSH_PRIVATE_KEY: ${{ secrets.MIXHOST_SECRET_KEY }} #githubに登録したmixhostへの秘密鍵を指定
-        - name: rsync deployments
-          uses: burnett01/rsync-deployments@5.1
-          with:
-            switches: -avz --delete
-            path: src/ #mixhostに送りたいファイルのあるパスを指定
-            remote_path: /public_html/nasio7_dev/GitHubActions/src/ #mixhostのどこに同期させるか
-            remote_host: nasio7.mixh.jp 
-            remote_user: pmlyknzb
-            remote_port: 22
-            remote_key: ${{ secrets.MIXHOST_SECRET_KEY }}
+    - uses: actions/checkout@v2
+    - name: ssh key setup
+      run: |
+        # 秘密鍵の生成とパーミッション設定
+        echo "$SSH_PRIVATE_KEY" > key
+        chmod 600 key
+        
+        # known_hostsの設定
+        ssh-keyscan nasio7.mixh.jp >> ~/.ssh/known_hosts
+        chmod 600 ~/.ssh/known_hosts
+        
+        # SSHエージェントの設定
+        eval $(ssh-agent -s)
+        ssh-add key
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.MIXHOST_SECRET_KEY }}
+    
+    - name: rsync deployments
+      uses: burnett01/rsync-deployments@5.1
+      with:
+        switches: -avz --delete
+        path: src/
+        remote_path: /public_html/nasio7_dev/GitHubActions/src/
+        remote_host: nasio7.mixh.jp
+        remote_user: pmlyknzb
+        remote_port: 22
+        remote_key: ${{ secrets.MIXHOST_SECRET_KEY }}
